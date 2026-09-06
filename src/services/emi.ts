@@ -43,7 +43,10 @@ export function buildEmiPlans(price: number, maxNoCostTenure: number): EmiPlan[]
       id: `emi-${tenure}`,
       tenureMonths: tenure,
       monthlyAmount: monthlyRounded,
-      totalPayable: monthlyRounded * tenure,
+      // For no-cost EMI the customer never pays more than the item price — the
+      // rounding difference on the displayed monthly figure is absorbed in the
+      // final instalment, so the total must stay exactly equal to the price.
+      totalPayable: noCost ? price : monthlyRounded * tenure,
       interestRate,
       noCost,
       recommended: tenure === recommendedTenure,
