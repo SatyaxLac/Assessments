@@ -1,10 +1,5 @@
-/**
- * 1Fi color tokens.
- *
- * Extracted from the existing 1Fi app screens (Home, Shop, EMI Dues, Limit,
- * Profile). These are the single source of truth for color — no component
- * should hardcode a hex value.
- */
+// Sampled from the existing 1Fi screens. Single source of truth for color —
+// components reference these instead of hardcoding hex values.
 export const colors = {
   // Brand
   primary: '#6D3EF2', // 1Fi purple — buttons, active tab, links, accents
@@ -34,6 +29,7 @@ export const colors = {
   danger: '#E5484D',
   dangerSoft: '#FCEBEC',
   warning: '#F5A623',
+  warningSoft: '#FEF3E0',
 
   // Utility
   skeleton: '#E7E7EE',

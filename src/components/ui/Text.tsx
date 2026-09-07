@@ -6,10 +6,6 @@ interface TextProps extends RNTextProps {
   color?: string;
 }
 
-/**
- * Typography-aware Text. Pass a `variant` token from the theme instead of
- * ad-hoc font styling so text stays consistent across the app.
- */
 export function Text({ variant = 'body', color, style, ...rest }: TextProps) {
   return (
     <RNText

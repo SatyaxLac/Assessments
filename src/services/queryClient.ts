@@ -1,9 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
 
-/**
- * Shared React Query client. One retry keeps the demo snappy while still
- * exercising the retry path; stale time avoids refetching on every focus.
- */
+// One retry keeps a flaky request recoverable without making failures slow to
+// surface; the stale time stops the catalog refetching on every tab switch.
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

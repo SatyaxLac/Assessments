@@ -15,10 +15,6 @@ interface ButtonProps {
   accessibilityLabel?: string;
 }
 
-/**
- * 1Fi primary CTA: full-width pill, purple fill, bold white label.
- * Also supports secondary (outlined) and ghost variants used elsewhere.
- */
 export function Button({
   label,
   onPress,

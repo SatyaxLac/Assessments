@@ -1,14 +1,8 @@
 import { EmiPlan } from '@/data/types';
 
-/**
- * Central EMI math. Kept in one place so every screen and mock shows
- * consistent numbers.
- *
- * For no-cost EMI the monthly amount is simply principal / tenure.
- * For interest-bearing plans we use the standard reducing-balance EMI formula:
- *   EMI = P * r * (1 + r)^n / ((1 + r)^n - 1)
- * where r is the monthly rate and n the number of months.
- */
+// No-cost EMI is simply principal / tenure. Interest-bearing plans use the
+// standard reducing-balance formula EMI = P·r·(1+r)^n / ((1+r)^n − 1), where r
+// is the monthly rate and n the number of months.
 export function computeMonthlyEmi(
   principal: number,
   tenureMonths: number,
@@ -23,11 +17,8 @@ export function computeMonthlyEmi(
   return (principal * r * pow) / (pow - 1);
 }
 
-/**
- * Build the list of EMI plans available for a given price.
- * Tenures up to `maxNoCostTenure` are offered at 0% (no-cost); longer tenures
- * carry a nominal interest rate. The mid tenure is flagged as recommended.
- */
+// Tenures within the product's no-cost window are offered at 0%; anything
+// longer carries interest.
 export function buildEmiPlans(price: number, maxNoCostTenure: number): EmiPlan[] {
   const allTenures = [3, 6, 9, 12, 18, 24];
   const tenures = allTenures.filter((t) => t <= Math.max(maxNoCostTenure, 12));
@@ -54,7 +45,6 @@ export function buildEmiPlans(price: number, maxNoCostTenure: number): EmiPlan[]
   });
 }
 
-/** ₹1,23,456 style Indian-grouping currency formatting. */
 export function formatINR(amount: number): string {
   return `₹${Math.round(amount).toLocaleString('en-IN')}`;
 }

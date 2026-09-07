@@ -8,5 +8,4 @@ import { colors } from './colors';
 import { spacing, radius, shadow } from './spacing';
 import { typography } from './typography';
 
-/** Convenience bundle for consumers that want the whole theme object. */
 export const theme = { colors, spacing, radius, shadow, typography } as const;

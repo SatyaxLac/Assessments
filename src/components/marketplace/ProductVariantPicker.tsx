@@ -4,44 +4,43 @@ import { Variant } from '@/data/types';
 import { colors, radius, spacing } from '@/theme';
 import { Text } from '../ui/Text';
 
-interface VariantSelectorProps {
+interface ProductVariantPickerProps {
   variants: Variant[];
-  /** Map of group -> selected variant id. */
-  selected: Record<string, string>;
-  onSelect: (group: string, variantId: string) => void;
+  selectedVariantIds: Record<string, string>;
+  onSelectVariant: (group: string, variantId: string) => void;
 }
 
-/**
- * Renders variant options grouped by their `group` (Storage, Color, ...).
- * Each group is a row of selectable chips; out-of-stock options are disabled.
- */
-export function VariantSelector({ variants, selected, onSelect }: VariantSelectorProps) {
-  const groups = useMemo(() => {
-    const map = new Map<string, Variant[]>();
-    for (const v of variants) {
-      const list = map.get(v.group) ?? [];
-      list.push(v);
-      map.set(v.group, list);
+export function ProductVariantPicker({
+  variants,
+  selectedVariantIds,
+  onSelectVariant,
+}: ProductVariantPickerProps) {
+  const variantGroups = useMemo(() => {
+    const grouped = new Map<string, Variant[]>();
+    for (const variant of variants) {
+      const options = grouped.get(variant.group) ?? [];
+      options.push(variant);
+      grouped.set(variant.group, options);
     }
-    return Array.from(map.entries());
+    return Array.from(grouped.entries());
   }, [variants]);
 
   return (
     <View style={styles.container}>
-      {groups.map(([group, options]) => (
+      {variantGroups.map(([group, options]) => (
         <View key={group} style={styles.group}>
           <Text variant="bodyMuted" style={styles.groupLabel}>
             {group}
           </Text>
           <View style={styles.chips}>
             {options.map((option) => {
-              const active = selected[group] === option.id;
+              const active = selectedVariantIds[group] === option.id;
               const disabled = !option.inStock;
               return (
                 <Pressable
                   key={option.id}
                   disabled={disabled}
-                  onPress={() => onSelect(group, option.id)}
+                  onPress={() => onSelectVariant(group, option.id)}
                   accessibilityRole="radio"
                   accessibilityState={{ selected: active, disabled }}
                   style={[

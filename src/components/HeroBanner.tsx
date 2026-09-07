@@ -12,10 +12,6 @@ interface HeroBannerProps {
   subtitle?: string;
 }
 
-/**
- * The purple gradient hero used on the Shop page:
- * "Shop today, Pay later using Mutual funds."
- */
 export function HeroBanner({ badge, title, emphasis, titleTail, subtitle }: HeroBannerProps) {
   return (
     <LinearGradient

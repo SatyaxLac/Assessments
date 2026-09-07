@@ -1,15 +1,6 @@
 import { TextStyle } from 'react-native';
 import { colors } from './colors';
 
-/**
- * Typography scale for 1Fi. The app uses a bold, tight-leading display style
- * for headings, muted secondary text, and small uppercase letter-spaced
- * micro-labels for section headers ("GET STARTED", "SHOP USING 1FI ...").
- *
- * We rely on the platform system font (San Francisco / Roboto) which matches
- * the clean sans-serif in the reference screens — no custom font shipping
- * needed for this scope.
- */
 export const typography = {
   hero: {
     fontSize: 30,
@@ -56,7 +47,6 @@ export const typography = {
     fontWeight: '500',
     color: colors.textMuted,
   },
-  // Small uppercase section header label
   sectionLabel: {
     fontSize: 11,
     lineHeight: 14,

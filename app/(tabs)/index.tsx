@@ -24,10 +24,6 @@ const STEPS = [
   { n: 3, title: 'Shop & pay later', icon: 'bag-handle-outline' as const },
 ];
 
-/**
- * Home tab. A light reproduction of the app's landing screen so the shell
- * feels real; the Shop → Marketplace flow is the focus of this build.
- */
 export default function HomeScreen() {
   const router = useRouter();
 

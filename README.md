@@ -58,9 +58,13 @@ gradient hero, segmented tabs, search — and adds a third tab:
 3. **Checkout** (`app/marketplace/checkout.tsx`) — order summary (product +
    variant + selected plan), a confirm CTA, and a success state.
 
-**Loading / error / empty states** are handled everywhere data is fetched:
-skeletons while loading, an error card with **Retry** wired to React Query's
-`refetch`, and empty states for "no results".
+**Loading / error / empty states** are handled per fetch, not globally:
+skeletons that match the shape of the content they replace; a failure card whose
+wording follows the actual failure (**no connection**, **request timed out**,
+**product no longer listed**) with **Retry** wired to React Query's `refetch`;
+distinct empty states for "no search results" vs. "catalog is empty". EMI plans
+own their own failure state, so a plans outage leaves the product details the
+user is reading on screen instead of blanking the page.
 
 ## Architecture
 
@@ -77,12 +81,14 @@ src/
   theme/                     # colors, typography, spacing — single source of truth
   components/ui/             # reusable kit: Button, Card, Badge, SegmentedTabs,
                              #   SearchBar, Skeleton, StateView, Screen, Text
-  components/marketplace/    # ProductCard, VariantSelector, EmiPlanCard, skeletons
+  components/marketplace/    # MarketplaceProductCard, ProductVariantPicker,
+                             #   EmiPlanSelector, EmiPlanOption, skeletons
   features/shop/             # MarketplaceTab, PlaceholderTab
   features/marketplace/      # variant/price selection helpers
   data/                      # types.ts + products.mock.ts (the catalog)
-  services/                  # api.ts (mock API seam), emi.ts (EMI math), queryClient
-  hooks/                     # useProducts / useProduct / useEmiPlans (React Query)
+  services/                  # marketplaceApi.ts (mock API seam), emi.ts, queryClient
+  hooks/                     # useMarketplaceProducts / useMarketplaceProduct /
+                             #   useEmiPlans (React Query)
 ```
 
 ### Data & API layer
@@ -90,17 +96,20 @@ src/
 No product or EMI data is hardcoded in components. It flows:
 
 ```
-data/products.mock.ts  →  services/api.ts  →  hooks/*  →  screens/components
+data/products.mock.ts  →  services/marketplaceApi.ts  →  hooks/*  →  screens
 ```
 
-- **`src/services/api.ts`** is the single seam a real backend would replace.
-  Every call returns a Promise, simulates network latency, and can fail. Tune
-  the demo via `apiConfig`:
+- **`src/services/marketplaceApi.ts`** is the single seam a real backend would
+  replace: `fetchMarketplaceProducts`, `fetchMarketplaceProduct`,
+  `fetchEmiPlans`. Every call returns a Promise, simulates latency, and can
+  fail with a typed `MarketplaceApiError` carrying a `kind` of `network`,
+  `timeout` or `notFound` — which is what lets the UI word each failure
+  differently instead of showing one generic message. Tune the demo via:
 
   ```ts
-  export const apiConfig = {
+  export const marketplaceApiConfig = {
     latencyMs: 650,
-    failureRate: 0, // set to 1 to force the error/retry state everywhere
+    failureRate: 0, // set to 1 to force the error/retry states everywhere
   };
   ```
 
@@ -110,15 +119,26 @@ data/products.mock.ts  →  services/api.ts  →  hooks/*  →  screens/componen
   (no-cost); longer tenures carry a nominal rate via the standard
   reducing-balance EMI formula.
 
-- **`src/hooks/`** wrap the API in React Query. `useEmiPlans` is keyed on the
-  effective price, so selecting a different variant automatically refetches
-  the right plans.
+- **`src/hooks/useMarketplaceProducts.ts`** wraps the API in React Query.
+  `useEmiPlans` is keyed on the effective price, so selecting a different
+  variant automatically refetches the plans that apply to the new amount.
 
 ### State management
 
-- **Server/data state** → React Query (cache, loading, error, retry).
-- **UI selection** (chosen variant, chosen EMI plan) → local screen state,
-  passed to checkout via route params. No global store needed at this scope.
+Chosen deliberately rather than by default — there was no existing store to
+match, and this is one feature with two screens:
+
+- **Server data** (catalog, product, EMI plans) → **React Query**. It is the one
+  dependency that earns its place here: the feature's hard requirements are
+  loading, error, retry and refetch-on-variant-change, which is exactly what a
+  query cache gives you. Rolling that by hand would mean reimplementing it.
+- **UI selection** (chosen variant, chosen EMI plan) → **local component
+  state**, handed to checkout through route params. This state is short-lived
+  and belongs to one screen; putting it in Redux/Zustand/Context would add
+  indirection without removing any.
+
+No global store, no context provider for feature state, no state machine — at
+this size those would be scaffolding around three `useState` calls.
 
 ## Design tokens
 
@@ -126,7 +146,9 @@ All visual values live in `src/theme` and nothing hardcodes a hex or size:
 
 - Primary purple `#6D3EF2`, deep indigo→violet hero gradient, `#F3F3F6` canvas.
 - Bold tight headings, muted secondary text, small uppercase section labels.
-- 16px screen padding, 16px card radius with soft elevation, pill CTAs.
+- 16px screen padding, 16px card radius with soft elevation, pill CTAs — the
+  Marketplace reuses the same shapes as the rest of the app rather than
+  introducing its own.
 
 ## Notes & assumptions
 
@@ -134,5 +156,9 @@ All visual values live in `src/theme` and nothing hardcodes a hex or size:
 - Top Brands & Nearby Stores are deliberately left as placeholders per the brief.
 - Home / EMI Dues / Limit / Profile tabs are reproduced lightly to make the app
   shell feel complete; the Shop → Marketplace flow is the focus.
+- Verified by walking the flow in the browser at a 375×812 mobile viewport and
+  with `failureRate: 1` to exercise every error path. Not yet run on a physical
+  device or simulator.
 - `--legacy-peer-deps` is needed because of an optional peer-dependency mismatch
   between some Expo 57 internal packages; it doesn't affect runtime.
+

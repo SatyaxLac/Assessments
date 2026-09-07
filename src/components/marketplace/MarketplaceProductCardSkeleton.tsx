@@ -2,8 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import { colors, radius, spacing } from '@/theme';
 import { Skeleton } from '../ui/Skeleton';
 
-/** Placeholder card shown in the listing grid while products load. */
-export function ProductCardSkeleton() {
+export function MarketplaceProductCardSkeleton() {
   return (
     <View style={styles.card}>
       <Skeleton width="100%" height={150} borderRadius={0} />

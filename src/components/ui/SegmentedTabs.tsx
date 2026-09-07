@@ -12,15 +12,9 @@ interface SegmentedTabsProps {
   options: SegmentOption[];
   value: string;
   onChange: (key: string) => void;
-  /** When there are more than ~3 tabs the row scrolls horizontally. */
   scrollable?: boolean;
 }
 
-/**
- * Pill-shaped segmented control matching the Shop page tabs. The active
- * segment is a white pill with a purple label and underline accent, sitting on
- * a soft tinted track.
- */
 export function SegmentedTabs({ options, value, onChange, scrollable }: SegmentedTabsProps) {
   const content = useMemo(
     () =>

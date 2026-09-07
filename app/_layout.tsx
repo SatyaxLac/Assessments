@@ -5,10 +5,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { queryClient } from '@/services/queryClient';
 import { colors } from '@/theme';
 
-/**
- * Root layout: wires up React Query, safe areas and the navigation stack.
- * The tab group is the entry; marketplace detail/checkout push on top of it.
- */
 export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>

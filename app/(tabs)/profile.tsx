@@ -20,7 +20,6 @@ const ACTIONS: Action[] = [
   { icon: 'document-text-outline', title: 'Terms & conditions', subtitle: 'Rules governing your use' },
 ];
 
-/** Profile tab, mirroring the app's account settings list. */
 export default function ProfileScreen() {
   return (
     <Screen padded={false}>

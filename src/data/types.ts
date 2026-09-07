@@ -1,16 +1,5 @@
-/**
- * Domain types shared across the data layer, services, hooks and UI.
- * Keeping these in one place means a real backend can later replace the
- * mock source without any UI changes as long as it matches these shapes.
- */
-
 export type Category = 'Mobiles' | 'Laptops' | 'Audio' | 'Wearables' | 'Appliances';
 
-/**
- * A selectable product option (e.g. "256GB / Titanium").
- * `priceDelta` adjusts the product's base price when this variant is chosen,
- * so pricing stays data-driven rather than hardcoded per screen.
- */
 export interface Variant {
   id: string;
   label: string; // e.g. "128GB", "Midnight"
@@ -41,10 +30,6 @@ export interface Product {
   highlights: string[];
 }
 
-/**
- * A concrete EMI plan for a given price. `noCost` means 0% effective interest
- * (the 1Fi "no-cost EMI" proposition); paid plans carry an interest rate.
- */
 export interface EmiPlan {
   id: string;
   tenureMonths: number;

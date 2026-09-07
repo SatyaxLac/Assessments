@@ -14,16 +14,11 @@ import {
   StateView,
   Text,
 } from '@/components/ui';
-import { useEmiPlans } from '@/hooks/useEmiPlans';
-import { useProduct } from '@/hooks/useProducts';
+import { useEmiPlans, useMarketplaceProduct } from '@/hooks/useMarketplaceProducts';
 import { formatINR } from '@/services/emi';
+import { errorKindOf } from '@/services/marketplaceApi';
 import { colors, radius, shadow, spacing } from '@/theme';
 
-/**
- * Checkout / order summary. Reads the selection from route params, re-derives
- * the product and chosen EMI plan, shows a summary, and confirms the (mock)
- * order. On success it shows a confirmation state.
- */
 export default function CheckoutScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{
@@ -34,13 +29,13 @@ export default function CheckoutScreen() {
   }>();
 
   const price = Number(params.price);
-  const productQuery = useProduct(params.productId);
+  const productQuery = useMarketplaceProduct(params.productId);
   const product = productQuery.data;
-  const emiQuery = useEmiPlans(price, product?.maxNoCostTenure);
+  const emiPlansQuery = useEmiPlans(price, product?.maxNoCostTenure);
 
   const plan = useMemo(
-    () => emiQuery.data?.find((p) => p.id === params.planId) ?? null,
-    [emiQuery.data, params.planId],
+    () => emiPlansQuery.data?.find((candidate) => candidate.id === params.planId) ?? null,
+    [emiPlansQuery.data, params.planId],
   );
 
   const [confirming, setConfirming] = useState(false);
@@ -48,7 +43,6 @@ export default function CheckoutScreen() {
 
   const handleConfirm = () => {
     setConfirming(true);
-    // Simulate placing the order against the backend.
     setTimeout(() => {
       setConfirming(false);
       setConfirmed(true);
@@ -62,7 +56,7 @@ export default function CheckoutScreen() {
           <StateView
             icon="checkmark-circle-outline"
             title="Order confirmed!"
-            message={`Your no-cost EMI plan is set up${
+            message={`Your ${plan?.noCost ? 'no-cost ' : ''}EMI plan is set up${
               plan ? ` at ${formatINR(plan.monthlyAmount)}/mo for ${plan.tenureMonths} months` : ''
             }. Track it under EMI Dues.`}
             actionLabel="Back to Shop"
@@ -83,10 +77,10 @@ export default function CheckoutScreen() {
         <View style={styles.headerSpacer} />
       </View>
 
-      {productQuery.isLoading || emiQuery.isLoading ? (
+      {productQuery.isPending || emiPlansQuery.isPending ? (
         <CheckoutSkeleton />
       ) : productQuery.isError || !product ? (
-        <ErrorState onRetry={() => productQuery.refetch()} />
+        <ErrorState kind={errorKindOf(productQuery.error)} onRetry={() => productQuery.refetch()} />
       ) : (
         <>
           <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -109,7 +103,13 @@ export default function CheckoutScreen() {
             </Card>
 
             <SectionLabel style={styles.section}>PAYMENT PLAN</SectionLabel>
-            {plan ? (
+            {emiPlansQuery.isError ? (
+              <ErrorState
+                kind={errorKindOf(emiPlansQuery.error)}
+                message="We couldn’t confirm your EMI plan. Nothing has been charged."
+                onRetry={() => emiPlansQuery.refetch()}
+              />
+            ) : plan ? (
               <Card padded>
                 <View style={styles.planHeader}>
                   <Text variant="h2" color={colors.primary}>

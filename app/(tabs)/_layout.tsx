@@ -5,10 +5,6 @@ import { colors, shadow } from '@/theme';
 
 type IoniconName = keyof typeof Ionicons.glyphMap;
 
-/**
- * Bottom tab bar matching the 1Fi app: Home, Shop, EMI Dues, Limit, Profile.
- * Active tab is purple with a short top indicator bar.
- */
 function TabIcon({ name, focused }: { name: IoniconName; focused: boolean }) {
   return (
     <View style={styles.iconWrap}>

@@ -1,15 +1,8 @@
 import { Product } from './types';
 
-/**
- * Mock product catalog for the 1Fi Marketplace.
- *
- * This stands in for a backend catalog service. It is intentionally the ONLY
- * place product content lives — UI components receive it via the api/hooks
- * layer and never hardcode product details.
- *
- * Images use Unsplash source URLs (stable, no auth) as placeholders since no
- * product assets were provided with the assignment.
- */
+// Stands in for a backend catalog service and is the only place product
+// content lives; components receive it through marketplaceApi and the hooks.
+// Images are Unsplash URLs since no product assets came with the assignment.
 export const PRODUCTS: Product[] = [
   {
     id: 'iphone-15',

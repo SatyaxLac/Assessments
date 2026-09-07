@@ -6,7 +6,6 @@ interface CardProps extends ViewProps {
   elevated?: boolean;
 }
 
-/** White rounded card with the app's soft elevation. */
 export function Card({ padded = true, elevated = true, style, children, ...rest }: CardProps) {
   return (
     <View

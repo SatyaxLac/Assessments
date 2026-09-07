@@ -1,10 +1,7 @@
 import { StateView } from '@/components/ui';
 
-/**
- * Blank placeholder for the Top Brands and Nearby Stores tabs. Per the brief
- * these are intentionally not implemented — we show a tasteful "coming soon"
- * state instead of a broken empty screen.
- */
+// Top Brands and Nearby Stores are intentionally out of scope, so they get a
+// deliberate "coming soon" state rather than an empty screen.
 export function PlaceholderTab({ title }: { title: string }) {
   return (
     <StateView

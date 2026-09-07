@@ -13,11 +13,6 @@ const TABS: SegmentOption[] = [
   { key: 'marketplace', label: '1Fi Marketplace' },
 ];
 
-/**
- * Shop page. Reproduces the existing layout — gradient hero, segmented tabs,
- * search — and adds the new "1Fi Marketplace" tab alongside the existing
- * (placeholder) Top Brands and Nearby Stores tabs.
- */
 export default function ShopScreen() {
   const [activeTab, setActiveTab] = useState<string>('marketplace');
   const [query, setQuery] = useState('');

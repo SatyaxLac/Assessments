@@ -3,8 +3,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { EmiPlanCard } from '@/components/marketplace/EmiPlanCard';
-import { VariantSelector } from '@/components/marketplace/VariantSelector';
+import { EmiPlanSelector } from '@/components/marketplace/EmiPlanSelector';
+import { ProductVariantPicker } from '@/components/marketplace/ProductVariantPicker';
 import {
   Badge,
   Button,
@@ -15,50 +15,45 @@ import {
   Text,
 } from '@/components/ui';
 import { EmiPlan } from '@/data/types';
-import { useEmiPlans } from '@/hooks/useEmiPlans';
-import { useProduct } from '@/hooks/useProducts';
+import { useEmiPlans, useMarketplaceProduct } from '@/hooks/useMarketplaceProducts';
 import {
   defaultSelection,
   resolvePrice,
   selectionSummary,
 } from '@/features/marketplace/selection';
 import { formatINR } from '@/services/emi';
+import { errorKindOf } from '@/services/marketplaceApi';
 import { colors, radius, shadow, spacing } from '@/theme';
 
-/**
- * Product detail + EMI selection screen.
- *
- * Flow: image + name + price → variant selection (updates price and refetches
- * EMI plans) → product highlights/specs → selectable EMI plans → sticky bottom
- * CTA that carries the selection into checkout.
- */
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
 
-  const productQuery = useProduct(id);
+  const productQuery = useMarketplaceProduct(id);
   const product = productQuery.data;
 
-  // Variant selection is local screen state; defaults applied once product loads.
-  const [selected, setSelected] = useState<Record<string, string>>({});
-  const effectiveSelected = useMemo(() => {
+  const [selectedVariantIds, setSelectedVariantIds] = useState<Record<string, string>>({});
+  const activeVariantIds = useMemo(() => {
     if (!product) return {};
-    return Object.keys(selected).length ? selected : defaultSelection(product);
-  }, [product, selected]);
+    return Object.keys(selectedVariantIds).length
+      ? selectedVariantIds
+      : defaultSelection(product);
+  }, [product, selectedVariantIds]);
 
-  const price = product ? resolvePrice(product, effectiveSelected) : undefined;
+  const price = product ? resolvePrice(product, activeVariantIds) : undefined;
 
-  const emiQuery = useEmiPlans(price, product?.maxNoCostTenure);
+  const emiPlansQuery = useEmiPlans(price, product?.maxNoCostTenure);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 
   const selectedPlan = useMemo(
-    () => emiQuery.data?.find((p) => p.id === selectedPlanId) ?? null,
-    [emiQuery.data, selectedPlanId],
+    () => emiPlansQuery.data?.find((plan) => plan.id === selectedPlanId) ?? null,
+    [emiPlansQuery.data, selectedPlanId],
   );
 
   const handleSelectVariant = (group: string, variantId: string) => {
-    setSelected({ ...effectiveSelected, [group]: variantId });
-    // Price changes -> EMI plans refetch -> clear stale plan selection.
+    setSelectedVariantIds({ ...activeVariantIds, [group]: variantId });
+    // A different variant means a different price, so the plan the user picked
+    // for the old amount no longer applies.
     setSelectedPlanId(null);
   };
 
@@ -70,7 +65,7 @@ export default function ProductDetailScreen() {
         productId: product.id,
         planId: selectedPlan.id,
         price: String(price),
-        variants: selectionSummary(product, effectiveSelected),
+        variants: selectionSummary(product, activeVariantIds),
       },
     });
   };
@@ -83,7 +78,7 @@ export default function ProductDetailScreen() {
         <DetailSkeleton />
       ) : productQuery.isError || !product ? (
         <ErrorState
-          message={(productQuery.error as Error)?.message}
+          kind={errorKindOf(productQuery.error)}
           onRetry={() => productQuery.refetch()}
         />
       ) : (
@@ -112,10 +107,10 @@ export default function ProductDetailScreen() {
             </View>
 
             <SectionLabel style={styles.section}>CHOOSE OPTIONS</SectionLabel>
-            <VariantSelector
+            <ProductVariantPicker
               variants={product.variants}
-              selected={effectiveSelected}
-              onSelect={handleSelectVariant}
+              selectedVariantIds={activeVariantIds}
+              onSelectVariant={handleSelectVariant}
             />
 
             <SectionLabel style={styles.section}>HIGHLIGHTS</SectionLabel>
@@ -146,10 +141,13 @@ export default function ProductDetailScreen() {
             </Card>
 
             <SectionLabel style={styles.section}>CHOOSE AN EMI PLAN</SectionLabel>
-            <EmiPlansSection
-              query={emiQuery}
+            <EmiPlanSelector
+              plans={emiPlansQuery.data}
+              isLoading={emiPlansQuery.isPending || emiPlansQuery.isFetching}
+              hasFailed={emiPlansQuery.isError}
               selectedPlanId={selectedPlanId}
-              onSelect={(plan) => setSelectedPlanId(plan.id)}
+              onSelectPlan={(plan) => setSelectedPlanId(plan.id)}
+              onRetry={() => emiPlansQuery.refetch()}
             />
           </ScrollView>
 
@@ -176,58 +174,6 @@ function Header({ onBack }: { onBack: () => void }) {
   );
 }
 
-/** EMI plans list with its own loading / error / empty handling. */
-function EmiPlansSection({
-  query,
-  selectedPlanId,
-  onSelect,
-}: {
-  query: ReturnType<typeof useEmiPlans>;
-  selectedPlanId: string | null;
-  onSelect: (plan: EmiPlan) => void;
-}) {
-  if (query.isLoading || query.isFetching) {
-    return (
-      <View style={styles.emiList}>
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} height={78} borderRadius={radius.lg} />
-        ))}
-      </View>
-    );
-  }
-
-  if (query.isError) {
-    return (
-      <ErrorState
-        message="Couldn’t load EMI plans."
-        onRetry={() => query.refetch()}
-      />
-    );
-  }
-
-  if (!query.data || query.data.length === 0) {
-    return (
-      <Text variant="bodyMuted" style={styles.noPlans}>
-        No EMI plans available for this configuration.
-      </Text>
-    );
-  }
-
-  return (
-    <View style={styles.emiList}>
-      {query.data.map((plan) => (
-        <EmiPlanCard
-          key={plan.id}
-          plan={plan}
-          selected={plan.id === selectedPlanId}
-          onSelect={onSelect}
-        />
-      ))}
-    </View>
-  );
-}
-
-/** Sticky bottom bar: shows the selected plan and the primary CTA. */
 function StickyCta({
   price,
   selectedPlan,
@@ -325,8 +271,6 @@ const styles = StyleSheet.create({
   },
   specDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
   specValue: { flex: 1, textAlign: 'right' },
-  emiList: { gap: spacing.md },
-  noPlans: { paddingVertical: spacing.lg },
   ctaBar: {
     backgroundColor: colors.card,
     borderTopWidth: StyleSheet.hairlineWidth,

@@ -5,17 +5,12 @@ import { colors, spacing } from '@/theme';
 
 interface ScreenProps {
   children: ReactNode;
-  /** Apply default 16px horizontal padding. Turn off for full-bleed screens. */
   padded?: boolean;
   edges?: Edge[];
   style?: ViewStyle;
   backgroundColor?: string;
 }
 
-/**
- * Standard screen container: safe-area aware, app background, optional padding.
- * Used by every route so spacing and safe areas stay consistent.
- */
 export function Screen({
   children,
   padded = true,

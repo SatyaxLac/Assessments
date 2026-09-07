@@ -14,11 +14,6 @@ interface StateViewProps {
   style?: ViewStyle;
 }
 
-/**
- * Shared empty / error state block: centered illustration bubble, title,
- * message and an optional CTA. Mirrors the app's "NOTHING DUE YET" /
- * "CHECK ELIGIBILITY" empty screens.
- */
 export function StateView({
   icon,
   title,
@@ -57,16 +52,45 @@ export function StateView({
   );
 }
 
-/** Convenience wrapper for the common "failed to load" case. */
-export function ErrorState({ onRetry, message }: { onRetry?: () => void; message?: string }) {
+/**
+ * Failure state for a fetch. `kind` picks wording and icon that match what
+ * actually went wrong — a timeout invites a retry, a missing product doesn't.
+ */
+export function ErrorState({
+  kind = 'network',
+  onRetry,
+  message,
+}: {
+  kind?: 'network' | 'timeout' | 'notFound';
+  onRetry?: () => void;
+  message?: string;
+}) {
+  const presets = {
+    network: {
+      icon: 'cloud-offline-outline' as const,
+      title: 'No connection',
+      message: 'Check your internet and try again.',
+    },
+    timeout: {
+      icon: 'time-outline' as const,
+      title: 'This is taking a while',
+      message: 'The request timed out. It may just be a slow connection.',
+    },
+    notFound: {
+      icon: 'help-circle-outline' as const,
+      title: 'Product unavailable',
+      message: 'This product is no longer listed in the Marketplace.',
+    },
+  }[kind];
+
   return (
     <StateView
-      icon="cloud-offline-outline"
+      icon={presets.icon}
       tone="error"
-      title="Something went wrong"
-      message={message ?? 'We couldn’t load this right now. Please try again.'}
-      actionLabel={onRetry ? 'Retry' : undefined}
-      onAction={onRetry}
+      title={presets.title}
+      message={message ?? presets.message}
+      actionLabel={kind === 'notFound' || !onRetry ? undefined : 'Retry'}
+      onAction={kind === 'notFound' ? undefined : onRetry}
     />
   );
 }

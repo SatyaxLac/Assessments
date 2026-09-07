@@ -7,10 +7,6 @@ interface SectionLabelProps {
   style?: ViewStyle;
 }
 
-/**
- * Small uppercase letter-spaced section header with a short leading accent bar,
- * matching "SHOP USING 1FI AT TOP BRANDS", "HOW 1FI WORKS" etc. in the app.
- */
 export function SectionLabel({ children, style }: SectionLabelProps) {
   return (
     <View style={[styles.row, style]}>

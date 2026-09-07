@@ -1,7 +1,3 @@
-/**
- * Spacing, radius and shadow tokens for the 1Fi design system.
- * Base unit is 4px, matching the app's consistent 4/8/12/16 rhythm.
- */
 export const spacing = {
   xs: 4,
   sm: 8,
@@ -20,10 +16,6 @@ export const radius = {
   pill: 999, // full-width pill buttons & segmented tabs
 } as const;
 
-/**
- * Soft elevation used by cards throughout the app. Cross-platform:
- * iOS uses shadow*, Android uses elevation.
- */
 export const shadow = {
   card: {
     shadowColor: '#1A1633',

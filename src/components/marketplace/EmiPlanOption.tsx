@@ -6,20 +6,16 @@ import { colors, radius, spacing } from '@/theme';
 import { Badge } from '../ui/Badge';
 import { Text } from '../ui/Text';
 
-interface EmiPlanCardProps {
+interface EmiPlanOptionProps {
   plan: EmiPlan;
   selected: boolean;
-  onSelect: (plan: EmiPlan) => void;
+  onSelectPlan: (plan: EmiPlan) => void;
 }
 
-/**
- * A selectable EMI plan row: tenure, per-month amount, total payable and a
- * no-cost / interest tag. Selected state shows a filled radio + purple border.
- */
-export function EmiPlanCard({ plan, selected, onSelect }: EmiPlanCardProps) {
+export function EmiPlanOption({ plan, selected, onSelectPlan }: EmiPlanOptionProps) {
   return (
     <Pressable
-      onPress={() => onSelect(plan)}
+      onPress={() => onSelectPlan(plan)}
       accessibilityRole="radio"
       accessibilityState={{ selected }}
       accessibilityLabel={`${plan.tenureMonths} months, ${formatINR(plan.monthlyAmount)} per month`}

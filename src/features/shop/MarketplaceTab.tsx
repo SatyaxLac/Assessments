@@ -1,39 +1,33 @@
 import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ProductCard } from '@/components/marketplace/ProductCard';
-import { ProductCardSkeleton } from '@/components/marketplace/ProductCardSkeleton';
+import { MarketplaceProductCard } from '@/components/marketplace/MarketplaceProductCard';
+import { MarketplaceProductCardSkeleton } from '@/components/marketplace/MarketplaceProductCardSkeleton';
 import { ErrorState, StateView } from '@/components/ui';
 import { Product } from '@/data/types';
-import { useProducts } from '@/hooks/useProducts';
+import { useMarketplaceProducts } from '@/hooks/useMarketplaceProducts';
+import { errorKindOf } from '@/services/marketplaceApi';
 import { spacing } from '@/theme';
 
 interface MarketplaceTabProps {
-  /** Search text from the Shop page search bar. */
   query: string;
 }
 
-/**
- * The 1Fi Marketplace listing. Fetches products via React Query and renders a
- * 2-column grid, with dedicated loading (skeletons), error (retry) and empty
- * states. Tapping a card opens the product detail route.
- *
- * Rendered inside the Shop page's parent ScrollView, so this uses a plain
- * wrapped View grid rather than its own FlatList to avoid nested scrolling.
- */
+// Rendered inside the Shop page's ScrollView, so the grid is a wrapped View
+// rather than a FlatList — nesting two scroll views breaks momentum on Android.
 export function MarketplaceTab({ query }: MarketplaceTabProps) {
   const router = useRouter();
-  const { data, isLoading, isError, error, refetch, isRefetching } = useProducts();
+  const { data, isLoading, isError, error, refetch } = useMarketplaceProducts();
 
-  const filtered = useMemo(() => {
+  const matchingProducts = useMemo(() => {
     if (!data) return [];
-    const q = query.trim().toLowerCase();
-    if (!q) return data;
+    const needle = query.trim().toLowerCase();
+    if (!needle) return data;
     return data.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.brand.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q),
+      (product) =>
+        product.name.toLowerCase().includes(needle) ||
+        product.brand.toLowerCase().includes(needle) ||
+        product.category.toLowerCase().includes(needle),
     );
   }, [data, query]);
 
@@ -44,9 +38,9 @@ export function MarketplaceTab({ query }: MarketplaceTabProps) {
   if (isLoading) {
     return (
       <View style={styles.grid}>
-        {Array.from({ length: 6 }).map((_, i) => (
-          <View key={i} style={styles.cell}>
-            <ProductCardSkeleton />
+        {Array.from({ length: 6 }).map((_, row) => (
+          <View key={row} style={styles.cell}>
+            <MarketplaceProductCardSkeleton />
           </View>
         ))}
       </View>
@@ -54,10 +48,10 @@ export function MarketplaceTab({ query }: MarketplaceTabProps) {
   }
 
   if (isError) {
-    return <ErrorState message={(error as Error)?.message} onRetry={() => refetch()} />;
+    return <ErrorState kind={errorKindOf(error)} onRetry={() => refetch()} />;
   }
 
-  if (filtered.length === 0) {
+  if (matchingProducts.length === 0) {
     return (
       <StateView
         icon="search-outline"
@@ -65,7 +59,7 @@ export function MarketplaceTab({ query }: MarketplaceTabProps) {
         message={
           query
             ? `We couldn’t find anything for “${query}”. Try a different search.`
-            : 'Products will appear here soon.'
+            : 'New products are added to the Marketplace every week.'
         }
       />
     );
@@ -73,12 +67,11 @@ export function MarketplaceTab({ query }: MarketplaceTabProps) {
 
   return (
     <View style={styles.grid}>
-      {filtered.map((product) => (
+      {matchingProducts.map((product) => (
         <View key={product.id} style={styles.cell}>
-          <ProductCard product={product} onPress={openProduct} />
+          <MarketplaceProductCard product={product} onOpenProduct={openProduct} />
         </View>
       ))}
-      {isRefetching ? <View style={styles.refetchSpacer} /> : null}
     </View>
   );
 }
@@ -96,5 +89,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: GAP / 2,
     marginBottom: GAP,
   },
-  refetchSpacer: { height: spacing.lg, width: '100%' },
 });

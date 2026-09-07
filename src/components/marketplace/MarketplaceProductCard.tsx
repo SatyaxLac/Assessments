@@ -1,25 +1,23 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Image } from 'react-native';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { Product } from '@/data/types';
 import { formatINR } from '@/services/emi';
 import { colors, radius, shadow, spacing } from '@/theme';
 import { Badge } from '../ui/Badge';
 import { Text } from '../ui/Text';
 
-interface ProductCardProps {
+interface MarketplaceProductCardProps {
   product: Product;
-  onPress: (product: Product) => void;
+  onOpenProduct: (product: Product) => void;
 }
 
-/**
- * Grid card for the marketplace listing: product image, brand, name, price and
- * a no-cost EMI hint. Two of these sit per row.
- */
-export function ProductCard({ product, onPress }: ProductCardProps) {
+export function MarketplaceProductCard({
+  product,
+  onOpenProduct,
+}: MarketplaceProductCardProps) {
   return (
     <Pressable
-      onPress={() => onPress(product)}
+      onPress={() => onOpenProduct(product)}
       accessibilityRole="button"
       accessibilityLabel={`${product.name}, ${formatINR(product.basePrice)}`}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}

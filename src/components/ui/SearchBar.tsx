@@ -9,7 +9,6 @@ interface SearchBarProps {
   style?: ViewStyle;
 }
 
-/** Rounded full-width search field with a leading magnifier, per the Shop page. */
 export function SearchBar({ value, onChangeText, placeholder = 'Search…', style }: SearchBarProps) {
   return (
     <View style={[styles.container, style]}>
