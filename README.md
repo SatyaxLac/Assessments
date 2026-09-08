@@ -2,7 +2,8 @@
 
 A mobile-first web application built with **Expo Router** and **React Native for Web**, replicating the [1Fi](https://app.1fi.in/dashboard) experience — a "Buy Now Pay Later" platform backed by mutual fund investments instead of credit scores.
 
-> **Live dev server:** `npx expo start --web` → [http://localhost:8081](http://localhost:8081)
+> 🚀 **Live Demo:** [https://assessments-eight.vercel.app](https://assessments-eight.vercel.app)  
+> 💻 **Local Dev Server:** `npx expo start --web` → [http://localhost:8081](http://localhost:8081)
 
 ---
 
@@ -57,7 +58,9 @@ A mobile-first web application built with **Expo Router** and **React Native for
 ---
 
 ## Getting Started
-
+ 
+Visit the live demo directly at **[https://assessments-eight.vercel.app](https://assessments-eight.vercel.app)**, or run locally:
+ 
 ```bash
 # Install dependencies
 npm install
@@ -65,11 +68,14 @@ npm install
 # Start dev server (web)
 npx expo start --web
 
+# Build for production (web export)
+npm run build
+
 # Type-check
 npm run typecheck
 ```
 
-The app opens at `http://localhost:8081`. The **login page** is the entry point — enter any 10-digit number, agree to T&C, and tap Proceed.
+The **login page** is the entry point — enter any 10-digit number, agree to T&C, and tap Proceed.
 
 ---
 
