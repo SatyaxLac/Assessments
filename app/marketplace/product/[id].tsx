@@ -101,6 +101,20 @@ export default function ProductDetailScreen() {
               </Text>
             ) : null}
 
+            {product.rating != null && (
+              <View style={styles.ratingRow}>
+                <Ionicons name="star" size={14} color={colors.warning} />
+                <Text variant="body" style={styles.ratingText}>
+                  {product.rating.toFixed(1)}
+                </Text>
+                {product.ratingCount != null && (
+                  <Text variant="caption" color={colors.textSecondary}>
+                    ({product.ratingCount.toLocaleString('en-IN')} reviews)
+                  </Text>
+                )}
+              </View>
+            )}
+
             <View style={styles.priceRow}>
               <Text variant="price">{price != null ? formatINR(price) : '—'}</Text>
               <Badge label={`No-cost EMI upto ${product.maxNoCostTenure} months`} tone="success" />
@@ -253,6 +267,8 @@ const styles = StyleSheet.create({
   image: { width: '100%', height: '100%' },
   name: { marginTop: spacing.xs },
   tagline: { marginTop: spacing.xs },
+  ratingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginTop: spacing.sm },
+  ratingText: { fontWeight: '700' },
   priceRow: {
     flexDirection: 'row',
     alignItems: 'center',
