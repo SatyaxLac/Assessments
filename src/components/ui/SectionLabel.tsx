@@ -11,7 +11,9 @@ export function SectionLabel({ children, style }: SectionLabelProps) {
   return (
     <View style={[styles.row, style]}>
       <View style={styles.bar} />
-      <Text variant="sectionLabel">{children}</Text>
+      <Text variant="sectionLabel" color={colors.primary} style={styles.labelText}>
+        {children}
+      </Text>
     </View>
   );
 }
@@ -19,10 +21,15 @@ export function SectionLabel({ children, style }: SectionLabelProps) {
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md },
   bar: {
-    width: 14,
-    height: 3,
+    width: 3.5,
+    height: 16,
     borderRadius: 2,
     backgroundColor: colors.primary,
-    marginRight: spacing.sm,
+    marginRight: spacing.sm + 2,
+  },
+  labelText: {
+    letterSpacing: 1.2,
+    fontWeight: '800',
+    fontSize: 12,
   },
 });

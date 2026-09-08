@@ -42,7 +42,8 @@ export function ProductVariantPicker({
                   disabled={disabled}
                   onPress={() => onSelectVariant(group, option.id)}
                   accessibilityRole="radio"
-                  accessibilityState={{ selected: active, disabled }}
+                  accessibilityState={{ checked: active, disabled }}
+                  aria-checked={active}
                   style={[
                     styles.chip,
                     active && styles.chipActive,

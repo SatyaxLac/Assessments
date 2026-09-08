@@ -1,5 +1,6 @@
+import { Ionicons } from '@expo/vector-icons';
 import { ActivityIndicator, Pressable, StyleSheet, View, ViewStyle } from 'react-native';
-import { colors, radius, spacing, typography } from '@/theme';
+import { colors, radius, spacing } from '@/theme';
 import { Text } from './Text';
 
 type Variant = 'primary' | 'secondary' | 'ghost';
@@ -11,6 +12,8 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   fullWidth?: boolean;
+  icon?: keyof typeof Ionicons.glyphMap;
+  iconPosition?: 'left' | 'right';
   style?: ViewStyle;
   accessibilityLabel?: string;
 }
@@ -22,6 +25,8 @@ export function Button({
   disabled = false,
   loading = false,
   fullWidth = true,
+  icon,
+  iconPosition = 'right',
   style,
   accessibilityLabel,
 }: ButtonProps) {
@@ -44,20 +49,31 @@ export function Button({
       ]}
     >
       <View style={styles.content}>
-        {loading && (
+        {loading ? (
           <ActivityIndicator
             size="small"
             color={variant === 'primary' ? colors.textOnPrimary : colors.primary}
             style={styles.spinner}
           />
-        )}
-        <Text
-          variant="button"
-          color={variantStyles[variant].labelColor}
-          style={typography.button}
-        >
+        ) : icon && iconPosition === 'left' ? (
+          <Ionicons
+            name={icon}
+            size={18}
+            color={variantStyles[variant].labelColor}
+            style={{ marginRight: spacing.xs }}
+          />
+        ) : null}
+        <Text variant="button" color={variantStyles[variant].labelColor}>
           {label}
         </Text>
+        {!loading && icon && iconPosition === 'right' ? (
+          <Ionicons
+            name={icon}
+            size={18}
+            color={variantStyles[variant].labelColor}
+            style={{ marginLeft: spacing.xs }}
+          />
+        ) : null}
       </View>
     </Pressable>
   );
@@ -72,7 +88,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
   },
   fullWidth: { alignSelf: 'stretch' },
-  content: { flexDirection: 'row', alignItems: 'center' },
+  content: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
   spinner: { marginRight: spacing.sm },
   disabled: { opacity: 0.45 },
 });

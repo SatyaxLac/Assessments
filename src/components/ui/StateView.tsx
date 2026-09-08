@@ -11,6 +11,7 @@ interface StateViewProps {
   actionLabel?: string;
   onAction?: () => void;
   tone?: 'neutral' | 'error';
+  actionVariant?: 'primary' | 'secondary' | 'ghost';
   style?: ViewStyle;
 }
 
@@ -21,6 +22,7 @@ export function StateView({
   actionLabel,
   onAction,
   tone = 'neutral',
+  actionVariant = 'primary',
   style,
 }: StateViewProps) {
   const accent = tone === 'error' ? colors.danger : colors.primary;
@@ -43,7 +45,7 @@ export function StateView({
         <Button
           label={actionLabel}
           onPress={onAction}
-          variant={tone === 'error' ? 'primary' : 'secondary'}
+          variant={actionVariant}
           fullWidth={false}
           style={styles.action}
         />

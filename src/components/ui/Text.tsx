@@ -9,7 +9,7 @@ interface TextProps extends RNTextProps {
 export function Text({ variant = 'body', color, style, ...rest }: TextProps) {
   return (
     <RNText
-      style={[typography[variant], color ? { color } : null, style]}
+      style={[typography[variant], style, color ? { color } : null]}
       {...rest}
     />
   );

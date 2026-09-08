@@ -65,6 +65,18 @@ export default function TabsLayout() {
           tabBarIcon: ({ focused }) => <TabIcon name="person-outline" focused={focused} />,
         }}
       />
+      <Tabs.Screen
+        name="refer"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="faq"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
@@ -74,6 +86,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.border,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     height: Platform.select({ ios: 88, default: 64 }),
     paddingTop: 8,
     paddingBottom: Platform.select({ ios: 28, default: 8 }),

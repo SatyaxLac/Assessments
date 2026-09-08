@@ -17,7 +17,10 @@ export function EmiPlanOption({ plan, selected, onSelectPlan }: EmiPlanOptionPro
     <Pressable
       onPress={() => onSelectPlan(plan)}
       accessibilityRole="radio"
-      accessibilityState={{ selected }}
+      // accessibilityState covers native; react-native-web 0.21 only forwards
+      // the aria-* prop, so a screen reader on web needs it spelled out too.
+      accessibilityState={{ checked: selected }}
+      aria-checked={selected}
       accessibilityLabel={`${plan.tenureMonths} months, ${formatINR(plan.monthlyAmount)} per month`}
       style={[styles.card, selected && styles.cardSelected]}
     >
